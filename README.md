@@ -1,4 +1,4 @@
-# Projeto 2 - Dashboard HTLM para exibição dos dados
+# Projeto 2 - Dashboard HTLM
 
 Aplicação Flask que extrai dados de um Google Sheets e exibe em tabelas HTML. Cada tabela tem uma chave de acesso.
 
