@@ -1,6 +1,8 @@
 import datetime
+import json
 from flask import Flask, request
 import pygsheets
+import templates
 
 app = Flask(__name__)
 
@@ -9,36 +11,23 @@ gc = pygsheets.authorize(service_file="secrets/mads-494811-aeff067e4247.json")
 # Abrir a spreadsheet
 sheet = gc.open("BaseDados_Projeto2_Grupo1")
 
+agora = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
-agora = str(datetime.datetime.now())[0:19]
-bottomline = f"<hr color=green><small><i>{agora} - Projeto 2 - Grupo 1 - Desenvolvido por Diogo Silva, Gabrielly Bresler e Bernardo Pereira</i></small>"
-
-
-# Ler ficheiro chave.txt (formato: chave:tabela)
+# Ler ficheiro chave.json (formato: {"chave": "tabela"})
 # Cria um dicionário {chave: tabela}
-with open("secrets/chave.txt") as f:
-    KEYS = {line.strip().split(":")[0]: line.strip().split(":")[1] for line in f if ":" in line}
+with open("secrets/chave.json") as f:
+    KEYS = json.load(f)
 
 # Função para buscar os dados de uma worksheet pelo nome da tabela
 def get_data(nome):
     return sheet.worksheet_by_title(nome).get_all_values(include_tailing_empty=False)
 
-# Converte os dados em uma tabela HTML Simples
-def tabela(dados):
-    if not dados:
-        return "<p>Sem dados</p>"
-    
-    # Criar cabeçalho
-    html = "<table border='1' cellpadding='2' cellspacing='0'><tr>"
-    for h in dados[0]:  # Primeira linha = headers
-        html += f"<th>{h}</th>"
-    html += "</tr>"
 
-    # Adicionar linhas de dados
-    for row in dados[1:]:  # Restantes linhas
-        html += "<tr>" + "".join(f"<td>{cell}</td>" for cell in row) + "</tr>"
-    
-    return html + "</table>"
+def get_data_safe(nome):
+    try:
+        return get_data(nome)
+    except Exception:
+        return []
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
@@ -61,38 +50,67 @@ def index():
             # Mostrar erro se chave errada
             msg = "<p style='color:red;'><small>Chave errada!</small></p>"
     
-    # Buscar dados da tabela atual
-    dados = get_data(tabela_atual)
-    
-    # Retornar HTML com a página
+    # Buscar dados da tabela atual (pular para a página de integridade, que não é tabela)
+    if tabela_atual == "integridade":
+        dados = {
+            "oficinas": get_data_safe("oficinas"),
+            "categoriasOficinas": get_data_safe("categoriasOficinas"),
+            "utilizadores": get_data_safe("utilizadores"),
+            "compras": get_data_safe("compras"),
+        }
+    elif tabela_atual == "oficinas":
+        dados = get_data(tabela_atual)
+        categorias = get_data("categoriasOficinas")
+    elif tabela_atual == "dasboard":
+        dados = None
+    else:
+        dados = get_data(tabela_atual)
+    # Obter função de template correspondente em templates.py
+    tpl_func = getattr(templates, tabela_atual, templates.generic_table)
+    content = tpl_func(dados, categorias) if tabela_atual == "oficinas" else tpl_func(dados)
+    # Montar a página simples
     return f"""
     <!DOCTYPE html>
     <html>
     <head>
         <meta charset="UTF-8">
-        <title>Grupo 1 - Projeto 2 </title>
+        <title>Grupo 1 - Projeto 2</title>
+        <style>
+            body{{font-family:Arial,sans-serif;margin:20px}}
+            table{{border-collapse:collapse;width:100%}}
+            th,td{{padding:6px 8px}}
+            .header{{display:flex;align-items:center;justify-content:space-between;gap:20px;padding:10px;margin-bottom:20px}}
+            .header-text h1,.header-text h5{{margin:0}}
+            .header-text h5{{margin-top:4px}}
+            .header-image{{flex:0 0 auto}}
+            .header-image img{{display:block;max-width:180px;height:auto}}
+        </style>
     </head>
     <body>
-        <h1>Projeto 2</h1>
-        
-        <!-- Formulário de chave -->
+        <div class="header">
+            <div class="header-text">
+                <h1>Interface de análise de dados sobre oficinas</h1>
+                <h5>Projeto 2 - Grupo 1 - Bernardo Pereira, Diogo Silva, Gabrielly Bresler | Metodologias Ágeis de Desenvolvimento de Software | Maio de 2026 | IPMAIA</h5>
+            </div>
+            <div class="header-image">
+                <a href="https://www.ipmaia.pt/" target="_blank">
+                    <img src="https://www.ipmaia.pt/SiteCollectionImages/logo_ipmaia_site_logo_ipmaia_small.png" alt="IPMAIA">
+                </a>
+                <p style="margin:12px; font-size:16px; color:green; text-align:justify; text-align: center;">{agora}</p>
+            </div>
+        </div>
+        <p>Use a chave para acessar as diferentes tabelas:</p>
         <form method="POST">
             <input type="password" name="chave" placeholder="Chave">
             <input type="submit" value="Enviar">
         </form>
-        
-        <!-- Mostrar mensagem de erro se houver -->
         {msg}
-        
-        <!-- Mostrar tabela -->
         <h2>{tabela_atual.capitalize()}</h2>
-        {tabela(dados)}
+        {content}
     </body>
-    {bottomline}
+        <hr color=green><small><i></i></small>
     </html>
     """
 
 if __name__ == '__main__':
     app.run(debug=True)
-
-
