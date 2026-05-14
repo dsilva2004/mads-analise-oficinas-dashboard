@@ -2,6 +2,8 @@
 
 Aplicação web desenvolvida em Flask que lê dados de um Google Sheets e apresenta tabelas, mapas interativos e validação de dados, com controlo de acesso por chaves.
 
+> **Nota:** Este projeto foi desenvolvido com o apoio de ferramentas de inteligência artificial, nomeadamente [Claude.ai](https://claude.ai), [GitHub Copilot](https://github.com/features/copilot) e [ChatGPT](https://chatgpt.com).
+
 ---
 
 ## Funcionalidades
