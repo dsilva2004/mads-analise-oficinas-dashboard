@@ -1,13 +1,24 @@
 import datetime
 import json
+import os
+from pathlib import Path
 from flask import Flask, request
+from dotenv import load_dotenv
 import pygsheets
 import templates
 
 app = Flask(__name__)
 
+load_dotenv()
+is_production = os.getenv("isProduction", "false").lower() == "true"
+
+if is_production:
+    service_file_path = "/app/secrets/mads-494811-aeff067e4247.json"
+else:
+    service_file_path = str(Path(__file__).resolve().parent / "secrets/mads-494811-aeff067e4247.json")
+
 # Autorizar com ficheiro JSON de credenciais do Google
-gc = pygsheets.authorize(service_file="secrets/mads-494811-aeff067e4247.json")
+gc = pygsheets.authorize(service_file=service_file_path)
 # Abrir a spreadsheet
 sheet = gc.open("BaseDados_Projeto2_Grupo1")
 
