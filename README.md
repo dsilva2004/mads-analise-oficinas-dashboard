@@ -4,6 +4,7 @@ Aplicação web em Flask que lê dados de um Google Sheets e apresenta tabelas, 
 
 > Desenvolvido com apoio de [Claude.ai](https://claude.ai), [GitHub Copilot](https://github.com/features/copilot) e [ChatGPT](https://chatgpt.com).
 
+> Chaves de acesso aos dados privados disponíveis no relatório do projeto.
 ---
 
 ## Funcionalidades
@@ -153,6 +154,8 @@ git status  # Confirmar que secrets/ não aparece
 ---
 
 ## Autores
+
+Relatório do projeto desenvolvido disponível em: https://docs.google.com/document/d/1MobcrBR_oaL5d95joBGpqeJOhM-1aHeL3ARiywxEzGY/edit?usp=sharing
 
 Bernardo Pereira, Diogo Silva, Gabrielly Bresler
 
