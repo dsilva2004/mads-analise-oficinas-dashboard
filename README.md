@@ -156,5 +156,5 @@ git status  # Confirmar que secrets/ não aparece
 
 Bernardo Pereira, Diogo Silva, Gabrielly Bresler
 
-**Curso:** Metodologias Ágeis de Desenvolvimento de Software · Projeto 2  
+**Unidade Curricular:** Metodologias Ágeis de Desenvolvimento de Software · Projeto 2  
 **Data:** Maio de 2026 · **Instituição:** IPMAIA
