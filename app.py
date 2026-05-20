@@ -13,7 +13,7 @@ load_dotenv()
 is_production = os.getenv("isProduction", "false").lower() == "true"
 
 if is_production:
-    service_file_path = "/app/secrets/mads-494811-aeff067e4247.json"
+    service_file_path = "/etc/secrets/mads-494811-aeff067e4247.json"
 else:
     service_file_path = str(Path(__file__).resolve().parent / "secrets/mads-494811-aeff067e4247.json")
 
