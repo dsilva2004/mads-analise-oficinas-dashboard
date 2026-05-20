@@ -28,7 +28,7 @@ agora = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
 # Ler ficheiro chave.json (formato: {"chave": "tabela"})
 # Cria um dicionário {chave: tabela}
-with open("secrets/chave.json") as f:
+with open(chaves_file_path) as f:
     KEYS = json.load(f)
 
 # Função para buscar os dados de uma worksheet pelo nome da tabela
