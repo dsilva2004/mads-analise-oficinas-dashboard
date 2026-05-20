@@ -124,4 +124,9 @@ def index():
     """
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    if is_production:
+        # In production bind to all interfaces and use the PORT env var (Render, etc.)
+        app.run(host="0.0.0.0", port=int(os.getenv("PORT", 5000)), debug=False)
+    else:
+        # In development bind to localhost and enable debug
+        app.run(debug=True)
