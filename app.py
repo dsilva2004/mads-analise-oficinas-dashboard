@@ -14,8 +14,10 @@ is_production = os.getenv("isProduction", "false").lower() == "true"
 
 if is_production:
     service_file_path = "/etc/secrets/mads-494811-aeff067e4247.json"
+    chaves_file_path = "/etc/secrets/chave.json"
 else:
     service_file_path = str(Path(__file__).resolve().parent / "secrets/mads-494811-aeff067e4247.json")
+    chaves_file_path = str(Path(__file__).resolve().parent / "secrets/chave.json")
 
 # Autorizar com ficheiro JSON de credenciais do Google
 gc = pygsheets.authorize(service_file=service_file_path)
@@ -26,7 +28,7 @@ agora = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
 # Ler ficheiro chave.json (formato: {"chave": "tabela"})
 # Cria um dicionário {chave: tabela}
-with open("secrets/chave.json") as f:
+with open(chaves_file_path) as f:
     KEYS = json.load(f)
 
 # Função para buscar os dados de uma worksheet pelo nome da tabela
@@ -122,4 +124,9 @@ def index():
     """
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    if is_production:
+        # In production bind to all interfaces and use the PORT env var (Render, etc.)
+        app.run(host="0.0.0.0", port=int(os.getenv("PORT", 5000)), debug=False)
+    else:
+        # In development bind to localhost and enable debug
+        app.run(debug=True)
