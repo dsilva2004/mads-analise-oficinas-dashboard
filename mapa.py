@@ -97,7 +97,7 @@ def mapa(dados, categorias=None, height=550):
 """
     if cat_map:
         for nome, cor in cat_map.items():
-            legenda_html += f"<i style='background:{cor}; width:15px; height:15px; display:inline-block; margin-right:5px;'></i> {nome}<br>"
+            legenda_html += f"<i style='background:{cor}; width:15px; height:15px; display:inline-block; margin-right:5px;'></i> {nome.capitalize()}<br>"
     else:
         seen = set()
         for _, categoria, _, _ in pontos:

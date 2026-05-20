@@ -51,7 +51,7 @@ def index():
             msg = "<p style='color:red;'><small>Chave errada!</small></p>"
     
     # Buscar dados da tabela atual (pular para a página de integridade, que não é tabela)
-    if tabela_atual == "integridade":
+    if tabela_atual == "integridade" or tabela_atual == "dashboard":
         dados = {
             "oficinas": get_data_safe("oficinas"),
             "categoriasOficinas": get_data_safe("categoriasOficinas"),
@@ -61,8 +61,6 @@ def index():
     elif tabela_atual == "oficinas":
         dados = get_data(tabela_atual)
         categorias = get_data("categoriasOficinas")
-    elif tabela_atual == "dasboard":
-        dados = None
     else:
         dados = get_data(tabela_atual)
     # Obter função de template correspondente em templates.py

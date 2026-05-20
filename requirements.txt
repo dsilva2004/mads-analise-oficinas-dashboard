@@ -3,3 +3,5 @@ pygsheets==2.0.6
 folium==0.17.0
 google-auth-oauthlib==1.1.0
 google-auth-httplib2==0.2.0
+pandas>=1.5.0
+plotly>=5.0.0

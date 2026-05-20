@@ -1,5 +1,6 @@
 import mapa
 import integridade as integridade_service
+import dashboard as dashboard_service
 
 def render_table(dados):
     if not dados:
@@ -28,8 +29,10 @@ def compras(dados):
 def integridade(dados):
     return integridade_service.relatorio_html(dados)
 
-def dasboard(dados):
-    return "<p>Dashboard de análise de dados sobre oficinas.</p>"
+def dashboard(dados):
+    return dashboard_service.dashboard_html(dados)
 
 def generic_table(dados):
+    if isinstance(dados, dict):
+        return dashboard(dados)
     return render_table(dados)
