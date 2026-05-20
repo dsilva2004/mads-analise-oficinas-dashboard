@@ -1,37 +1,27 @@
 # Análise de Dados sobre Oficinas
 
-Aplicação web desenvolvida em Flask que lê dados de um Google Sheets e apresenta tabelas, mapas interativos e validação de dados, com controlo de acesso por chaves.
+Aplicação web em Flask que lê dados de um Google Sheets e apresenta tabelas, mapa interativo, dashboard e validação de dados, com controlo de acesso por chaves.
 
-> **Nota:** Este projeto foi desenvolvido com o apoio de ferramentas de inteligência artificial, nomeadamente [Claude.ai](https://claude.ai), [GitHub Copilot](https://github.com/features/copilot) e [ChatGPT](https://chatgpt.com).
+> Desenvolvido com apoio de [Claude.ai](https://claude.ai), [GitHub Copilot](https://github.com/features/copilot) e [ChatGPT](https://chatgpt.com).
 
 ---
 
 ## Funcionalidades
 
-- Tabelas com dados de oficinas, utilizadores, compras e categorias
-- Mapa interativo com marcadores coloridos por categoria
-- Validação automática de integridade dos dados
-- Controlo de acesso com chaves configuráveis
-- Dados carregados em tempo real a partir do Google Sheets
-
----
-
-## Tabelas disponíveis
-
-| Tabela | Descrição |
+| Módulo | Descrição |
 |---|---|
-| `oficinas` | Nome, NIF, categoria e localização das oficinas |
-| `utilizadores` | NIF, género, data de nascimento e data de registo |
-| `compras` | NIF do utilizador, NIF da oficina, valor, data e categoria |
-| `categoriasOficinas` | Categorias disponíveis (usado na validação e nas cores do mapa) |
-| `integridade` | Relatório de erros e validação geral dos dados |
+| **Tabelas** | Oficinas, utilizadores, compras e categorias |
+| **Mapa** | Marcadores coloridos por categoria, gerados com `folium` |
+| **Dashboard** | Gráficos de compras, vendas e faturação com `pandas` + `plotly` |
+| **Integridade** | Validação automática dos dados com relatório de erros |
+| **Acesso** | Controlo por chaves configuráveis em `secrets/chave.json` |
 
 ---
 
 ## Pré-requisitos
 
-- Python 3.7 ou superior
-- Conta Google com acesso ao Google Cloud Console
+- Python 3.7+
+- Conta Google com acesso ao [Google Cloud Console](https://console.cloud.google.com)
 - Google Sheets partilhada com a conta de serviço
 - Ficheiro JSON com as credenciais do Google
 
@@ -43,12 +33,12 @@ Aplicação web desenvolvida em Flask que lê dados de um Google Sheets e aprese
 # 1. Entrar na pasta do projeto
 cd Projeto2
 
-# 2. Criar e ativar o ambiente virtual
+# 2. Criar e ativar ambiente virtual
 python3 -m venv venv
 source venv/bin/activate        # macOS/Linux
 # venv\Scripts\activate         # Windows
 
-# 3. Instalar as dependências
+# 3. Instalar dependências
 pip install -r requirements.txt
 ```
 
@@ -56,25 +46,25 @@ pip install -r requirements.txt
 
 ## Configuração
 
-### Credenciais do Google
+### 1. Credenciais do Google
 
 No [Google Cloud Console](https://console.cloud.google.com):
 
 1. Criar um projeto e ativar a **Google Sheets API**
 2. Criar uma **conta de serviço** e descarregar o ficheiro JSON
-3. Guardar o ficheiro na pasta `secrets/`
+3. Guardar o ficheiro em `secrets/`
 4. Partilhar a folha de cálculo com o email da conta de serviço
 
-O ficheiro e o nome da folha estão definidos em `app.py`:
+Em `app.py`, ajustar conforme necessário:
 
 ```python
-gc = pygsheets.authorize(service_file="secrets/mads-494811-aeff067e4247.json")
+gc = pygsheets.authorize(service_file=service_file_path)
 sheet = gc.open("BaseDados_Projeto2_Grupo1")
 ```
 
-### Chaves de acesso
+### 2. Chaves de acesso
 
-Criar o ficheiro `secrets/chave.json` com o formato `{"chave": "tabela"}`:
+Criar `secrets/chave.json` com o formato `{"chave": "tabela"}`:
 
 ```json
 {
@@ -85,76 +75,79 @@ Criar o ficheiro `secrets/chave.json` com o formato `{"chave": "tabela"}`:
 }
 ```
 
+### 3. Variáveis de ambiente
+
+Criar um ficheiro `.env` na raiz do projeto:
+
+```
+isProduction=false
+```
+
+Em produção (ex.: Render), definir `isProduction=true`. A aplicação irá procurar as credenciais em `/etc/secrets/`.
+
 ---
 
 ## Execução
 
+**Desenvolvimento:**
+
 ```bash
+python app.py
+# Disponível em http://127.0.0.1:5000
+```
+
+**Porta personalizada:**
+
+```bash
+export PORT=5001
 python app.py
 ```
 
-Abrir no browser: [http://127.0.0.1:5000](http://127.0.0.1:5000)
+**Produção (Render):**
 
-- A página inicial mostra a tabela de oficinas com o mapa interativo.
-- Para aceder a outras tabelas, usar o formulário com a chave correspondente.
+- Build command: `pip install -r requirements.txt`
+- Start command: `gunicorn --bind 0.0.0.0:$PORT app:app`
+- Variável de ambiente: `isProduction=true`
+- Credenciais disponíveis em `/etc/secrets/`
 
 ---
 
 ## Estrutura do projeto
 
 ```
-├── app.py                    # Aplicação Flask principal
-├── templates.py              # Gerador de HTML para cada página
-├── integridade.py            # Validação de dados
-├── mapa.py                   # Gerador do mapa interativo (folium)
-├── requirements.txt          # Dependências do projeto
-├── README.md                 # Este ficheiro
+├── app.py                # Aplicação Flask principal
+├── templates.py          # Gerador de HTML para cada página
+├── integridade.py        # Validação de dados
+├── mapa.py               # Mapa interativo (folium)
+├── dashboard.py          # Gráficos (pandas + plotly)
+├── requirements.txt      # Dependências
+├── README.md             # Este ficheiro
 └── secrets/
-    ├── *.json                # Credenciais Google  ⚠️ não incluir no repositório
-    └── chave.json            # Chaves de acesso    ⚠️ não incluir no repositório
+    ├── *.json            # Credenciais Google  ⚠️ não incluir no repositório
+    └── chave.json        # Chaves de acesso    ⚠️ não incluir no repositório
 ```
 
 ---
 
 ## Validações de integridade
 
-### Todas as tabelas
-- Tabela ou cabeçalho vazios
-- Colunas duplicadas
-- Número de colunas inconsistente entre linhas
+**Todas as tabelas**
+- Tabela ou cabeçalho vazios, colunas duplicadas, número de colunas inconsistente
 
-### Oficinas
-- Nome ou NIF vazios
-- NIFs duplicados
-- Categoria inexistente em `categoriasOficinas`
-- Latitude fora do intervalo [-90, 90]
-- Longitude fora do intervalo [-180, 180]
+**Oficinas** — nome/NIF vazios ou duplicados, categoria inexistente, coordenadas fora do intervalo válido
 
-### Utilizadores
-- NIF vazio ou duplicado
-- Idade superior a 100 anos
-- Género inválido (apenas M, F ou Outro)
-- Data de registo no futuro
+**Utilizadores** — NIF vazio/duplicado, idade > 100 anos, género inválido (apenas M, F ou Outro), data de registo no futuro
 
-### Compras
-- NIF do utilizador ou da oficina vazios ou inexistentes
-- Valor não positivo
-- Data no futuro
-- Categoria inválida (apenas S ou P)
+**Compras** — NIFs vazios ou inexistentes, valor não positivo, data no futuro, categoria inválida (apenas S ou P)
 
 ---
 
 ## Segurança
 
-A pasta `secrets/` está incluída no `.gitignore`. Os ficheiros seguintes **nunca devem ser enviados para o repositório**:
-
-- Credenciais do Google (ficheiros JSON)
-- Ficheiro de chaves de acesso
-
-Para confirmar que estão excluídos:
+A pasta `secrets/` está no `.gitignore`. Os ficheiros de credenciais **nunca devem ser enviados para o repositório**.
 
 ```bash
-git status
+git status  # Confirmar que secrets/ não aparece
 ```
 
 ---
@@ -163,7 +156,5 @@ git status
 
 Bernardo Pereira, Diogo Silva, Gabrielly Bresler
 
-**Curso:** Metodologias Ágeis de Desenvolvimento de Software  
-**Projeto:** 2 — Análise de Dados sobre Oficinas  
-**Data:** Maio de 2026  
-**Instituição:** IPMAIA
+**Curso:** Metodologias Ágeis de Desenvolvimento de Software · Projeto 2  
+**Data:** Maio de 2026 · **Instituição:** IPMAIA
