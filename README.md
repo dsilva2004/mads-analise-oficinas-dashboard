@@ -2,9 +2,11 @@
 
 Aplicação web em Flask que lê dados de um Google Sheets e apresenta tabelas, mapa interativo, dashboard e validação de dados, com controlo de acesso por chaves.
 
-> Desenvolvido com apoio de [Claude.ai](https://claude.ai), [GitHub Copilot](https://github.com/features/copilot) e [ChatGPT](https://chatgpt.com).
+Relatório do projeto desenvolvido disponível em: https://docs.google.com/document/d/1MobcrBR_oaL5d95joBGpqeJOhM-1aHeL3ARiywxEzGY/edit?usp=sharing
 
-> Chaves de acesso aos dados privados disponíveis no relatório do projeto.
+> Projeto dispoível na plataforma Render.com [Link do Projeto](https://mads-analise-de-oficinas-dashboard.onrender.com/). As chaves de acesso aos dados privados estão disponíveis no relatório do projeto.
+
+> ⚠️ Desenvolvido com apoio de [Claude.ai](https://claude.ai), [GitHub Copilot](https://github.com/features/copilot) e [ChatGPT](https://chatgpt.com).
 ---
 
 ## Funcionalidades
@@ -154,8 +156,6 @@ git status  # Confirmar que secrets/ não aparece
 ---
 
 ## Autores
-
-Relatório do projeto desenvolvido disponível em: https://docs.google.com/document/d/1MobcrBR_oaL5d95joBGpqeJOhM-1aHeL3ARiywxEzGY/edit?usp=sharing
 
 Bernardo Pereira, Diogo Silva, Gabrielly Bresler
 
