@@ -14,8 +14,10 @@ is_production = os.getenv("isProduction", "false").lower() == "true"
 
 if is_production:
     service_file_path = "/etc/secrets/mads-494811-aeff067e4247.json"
+    chaves_file_path = "/etc/secrets/chave.json"
 else:
     service_file_path = str(Path(__file__).resolve().parent / "secrets/mads-494811-aeff067e4247.json")
+    chaves_file_path = str(Path(__file__).resolve().parent / "secrets/chave.json")
 
 # Autorizar com ficheiro JSON de credenciais do Google
 gc = pygsheets.authorize(service_file=service_file_path)
