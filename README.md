@@ -71,10 +71,11 @@ Criar `secrets/chave.json` com o formato `{"chave": "tabela"}`:
 
 ```json
 {
-  "admin1234": "utilizadores",
-  "grupo1": "categoriasOficinas",
-  "teste123": "compras",
-  "integridade2026": "integridade"
+  "utilizadores": "utilizadores",
+  "categorias": "categoriasOficinas",
+  "compras": "compras",
+  "integridade": "integridade",
+  "dashboard": "dashboard"
 }
 ```
 
@@ -99,17 +100,10 @@ python app.py
 # Disponível em http://127.0.0.1:5000
 ```
 
-**Porta personalizada:**
-
-```bash
-export PORT=5001
-python app.py
-```
-
 **Produção (Render):**
 
 - Build command: `pip install -r requirements.txt`
-- Start command: `gunicorn --bind 0.0.0.0:$PORT app:app`
+- Start command: `python app.py`
 - Variável de ambiente: `isProduction=true`
 - Credenciais disponíveis em `/etc/secrets/`
 
@@ -142,16 +136,6 @@ python app.py
 **Utilizadores** — NIF vazio/duplicado, idade > 100 anos, género inválido (apenas M, F ou Outro), data de registo no futuro
 
 **Compras** — NIFs vazios ou inexistentes, valor não positivo, data no futuro, categoria inválida (apenas S ou P)
-
----
-
-## Segurança
-
-A pasta `secrets/` está no `.gitignore`. Os ficheiros de credenciais **nunca devem ser enviados para o repositório**.
-
-```bash
-git status  # Confirmar que secrets/ não aparece
-```
 
 ---
 
