@@ -42,11 +42,22 @@ def relatorio_html(tabelas):
 
 	def record_error(table_name, row_number, column_name, message, value=""):
 		# Regista um erro encontrado.
+		column_text = str(column_name).strip() if column_name else ""
+		value_text = str(value).strip() if value not in (None, "") else ""
+		message_text = str(message).strip()
+		if column_text and message_text.lower().startswith(column_text.lower()):
+			message_text = message_text[len(column_text):].lstrip(" :-")
+		if column_text and value_text:
+			error_text = f"{column_text} ({value_text}) {message_text}".strip()
+		elif column_text:
+			error_text = f"{column_text} {message_text}".strip()
+		else:
+			error_text = message_text
 		errors.append({
 			"Tabela": table_name,
 			"Linha": "-" if row_number is None else str(row_number),
 			"Coluna": column_name or "-",
-			"Erro": message,
+			"Erro": error_text,
 			"Valor": str(value),
 		})
 
@@ -281,7 +292,7 @@ def relatorio_html(tabelas):
 		return html
 
 	#  Construir HTML: detalhes de erros 
-	heads = ["Tabela", "Linha", "Coluna", "Erro", "Valor"]
+	heads = ["Tabela", "Linha", "Coluna", "Erro"]
 	html += "<br/><h3>Erros encontrados</h3>"
 	html += "<table border='1' cellpadding='6' cellspacing='0'><tr>" + "".join(f"<th>{h}</th>" for h in heads) + "</tr>"
 	for e in errors:

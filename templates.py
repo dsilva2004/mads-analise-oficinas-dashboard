@@ -1,6 +1,39 @@
 import mapa
 import integridade as integridade_service
 import dashboard as dashboard_service
+from datetime import datetime
+
+
+def format_created_em(value):
+    text = str(value).strip()
+    if not text:
+        return text
+
+    if text.isdigit():
+        try:
+            number = int(text)
+            if number > 10**12:
+                number /= 1000
+            return datetime.fromtimestamp(number).strftime("%Y-%m-%d")
+        except Exception:
+            return text
+
+    try:
+        return datetime.fromisoformat(text.replace("Z", "+00:00")).strftime("%Y-%m-%d")
+    except Exception:
+        return text.split()[0]
+
+
+def format_cell(value):
+    text = str(value).strip()
+    if not text:
+        return text
+
+    try:
+        number = float(text.replace(",", "."))
+        return f"{number:.4f}"
+    except Exception:
+        return value
 
 def render_table(dados):
     if not dados:
@@ -9,8 +42,16 @@ def render_table(dados):
     for h in dados[0]:
         html += f"<th>{h}</th>"
     html += "</tr>"
+    criado_em_idx = next((i for i, h in enumerate(dados[0]) if str(h).strip().lower() == "criadoem"), None)
     for row in dados[1:]:
-        html += "<tr>" + "".join(f"<td>{cell}</td>" for cell in row) + "</tr>"
+        cells = []
+        for i, cell in enumerate(row):
+            if criado_em_idx is not None and i == criado_em_idx:
+                cell = format_created_em(cell)
+            else:
+                cell = format_cell(cell)
+            cells.append(f"<td>{cell}</td>")
+        html += "<tr>" + "".join(cells) + "</tr>"
     html += "</table>"
     return html
 

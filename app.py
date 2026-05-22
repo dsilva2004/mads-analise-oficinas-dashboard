@@ -2,6 +2,7 @@ import datetime
 import json
 import os
 from pathlib import Path
+from zoneinfo import ZoneInfo
 from flask import Flask, request
 from dotenv import load_dotenv
 import pygsheets
@@ -24,8 +25,6 @@ gc = pygsheets.authorize(service_file=service_file_path)
 # Abrir a spreadsheet
 sheet = gc.open("BaseDados_Projeto2_Grupo1")
 
-agora = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-
 # Ler ficheiro chave.json (formato: {"chave": "tabela"})
 # Cria um dicionário {chave: tabela}
 with open(chaves_file_path) as f:
@@ -47,6 +46,7 @@ def index():
     # Tabela padrão (sem chave)
     tabela_atual = "oficinas"
     msg = ""
+    agora = datetime.datetime.now(ZoneInfo("Europe/Lisbon")).strftime("%Y-%m-%d %H:%M:%S")
     
     # Se o utilizador enviou um formulário (POST)
     if request.method == "POST":
@@ -102,6 +102,7 @@ def index():
             <div class="header-text">
                 <h1>Interface de análise de dados sobre oficinas</h1>
                 <h5>Projeto 2 - Grupo 1 - Bernardo Pereira, Diogo Silva, Gabrielly Bresler | Metodologias Ágeis de Desenvolvimento de Software | Maio de 2026 | IPMAIA</h5>
+                <h5><span style="color:red;">Aviso:</span> Os dados incluídos neste projeto são fictícios e utilizados exclusivamente em contexto educacional e de demonstração. Qualquer semelhança com dados reais é coincidência sem correspondência intencional.</h5>
             </div>
             <div class="header-image">
                 <a href="https://www.ipmaia.pt/" target="_blank">
