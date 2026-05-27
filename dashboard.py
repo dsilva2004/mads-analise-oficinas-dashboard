@@ -137,9 +137,52 @@ def grafico_tempo(df):
 	vendas = df_valid.groupby("data")["valor"].sum().sort_index()
 	
 	fig = go.Figure(data=[go.Scatter(x=vendas.index, y=vendas.values, mode='lines+markers', fill='tozeroy', line=dict(color='green', width=2))])
-	fig.update_layout(title="Volume de faturação ao Longo do Tempo", xaxis_title="Data", yaxis_title="Valor (€)", height=600)
+	fig.update_layout(title="Volume de faturação ao Longo do Tempo", xaxis_title="Data", yaxis_title="Valor (€)", height=600, margin=dict(l=0, r=0, t=40, b=0), autosize=True)
 	
-	return fig.to_html(include_plotlyjs='cdn', div_id="grafico_tempo")
+	return fig.to_html(include_plotlyjs='cdn', div_id="grafico_tempo", config={'responsive': True})
+
+# Gera gráfico de evolução de vendas por categoria ao longo do tempo
+def grafico_evolucao_vendas(df):
+	if df.empty:
+		return None
+	
+	df_valid = df[df["data"].notna()].copy()
+	if df_valid.empty:
+		return None
+	
+	# Agrupar por data e tipo de categoria
+	vendas_por_tipo = df_valid.groupby(["data", "tipo"])["valor"].sum().reset_index()
+	
+	fig = go.Figure()
+	
+	# Adicionar um trace para cada categoria
+	for tipo in vendas_por_tipo["tipo"].unique():
+		dados_tipo = vendas_por_tipo[vendas_por_tipo["tipo"] == tipo].sort_values("data")
+		nome_tipo = "Produto" if tipo == "P" else "Serviço" if tipo == "S" else tipo
+		
+		fig.add_trace(go.Scatter(x=dados_tipo["data"], y=dados_tipo["valor"], mode='lines+markers', name=nome_tipo, fill='tozeroy'))
+	
+	fig.update_layout(title="Evolução de Vendas por Categoria", xaxis_title="Data", yaxis_title="Valor (€)", height=600, hovermode='x unified', margin=dict(l=0, r=0, t=40, b=0), autosize=True)
+	
+	return fig.to_html(include_plotlyjs='cdn', div_id="grafico_evolucao_vendas", config={'responsive': True})
+
+def grafico_vendas_categoria(df):
+    if df.empty:
+        return None
+    
+    vendas = df.groupby("tipo")["valor"].sum()
+    
+    mapa_nomes = {"P": "Produto", "S": "Serviço"}
+    mapa_cores = {"P": "#1f77b4", "S": "#ff7f0e"}
+    cor_default = "#aec7e8"
+
+    nomes = [mapa_nomes.get(x, x) for x in vendas.index]
+    cores = [mapa_cores.get(x, cor_default) for x in vendas.index]
+    
+    fig = go.Figure(data=[go.Bar(x=nomes, y=vendas.values, marker_color=cores)])
+    fig.update_layout(title="Vendas por Categoria", xaxis_title="Categoria", yaxis_title="Valor (€)", height=600, showlegend=False)
+    
+    return fig.to_html(include_plotlyjs='cdn', div_id="grafico_vendas_categoria")
 
 # Gera todos os gráficos do dashboard
 def dashboard_data(dados):
@@ -154,6 +197,8 @@ def dashboard_data(dados):
 		"oficinas": grafico_oficinas(df_compras, mapa_oficinas),
 		"tipo": grafico_tipo(df_compras),
 		"tempo": grafico_tempo(df_compras),
+		"evolucao_vendas": grafico_evolucao_vendas(df_compras),
+		"vendas_categoria": grafico_vendas_categoria(df_compras),
 	}
 
 # Interface para templates - retorna HTML completo com layout customizável
@@ -167,10 +212,17 @@ def dashboard_html(dados):
 	<style>
 		.dashboard-container { max-width: 1400px; margin: 0 auto; padding: 20px; }
 		.dashboard-title { text-align: center; margin-bottom: 30px; }
-		.graficos-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; }
-		.grafico-box { background: #f9f9f9; padding: 15px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-		.grafico-box:nth-child(1) { grid-column: 1 / -1; }
-		@media (max-width: 1024px) { .graficos-grid { grid-template-columns: 1fr; } .grafico-box:nth-child(1) { grid-column: 1; } }
+		.graficos-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; margin-bottom: 20px; }
+		.grafico-box { background: #f9f9f9; padding: 15px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); min-width: 0; }
+		.grafico-box-full { grid-column: 1 / -1; }
+		.grafico-box > div { width: 100% !important; }
+		.grafico-box .plotly-graph-div { width: 100% !important; }
+		#grafico_tempo, #grafico_evolucao_vendas { width: 100% !important; }
+		#grafico_tempo .plotly-graph-div, #grafico_evolucao_vendas .plotly-graph-div { width: 100% !important; }
+		@media (max-width: 1024px) { 
+			.graficos-grid { grid-template-columns: 1fr; } 
+    		.grafico-box-full { grid-column: 1; }
+		}
 	</style>
 	"""
 	
@@ -180,7 +232,7 @@ def dashboard_html(dados):
 	
 	# Adiciona cada gráfico numa box (tempo primeiro, ocupando 2 colunas)
 	if graficos.get("tempo"):
-		html += '<div class="grafico-box">' + graficos["tempo"] + '</div>'
+		html += '<div class="grafico-box grafico-box-full">' + graficos["tempo"] + '</div>'
 	
 	if graficos.get("total"):
 		html += '<div class="grafico-box">' + graficos["total"] + '</div>'
@@ -188,8 +240,14 @@ def dashboard_html(dados):
 	if graficos.get("tipo"):
 		html += '<div class="grafico-box">' + graficos["tipo"] + '</div>'
 	
+	if graficos.get("vendas_categoria"):
+		html += '<div class="grafico-box">' + graficos["vendas_categoria"] + '</div>'
+	
 	if graficos.get("oficinas"):
 		html += '<div class="grafico-box">' + graficos["oficinas"] + '</div>'
+	
+	if graficos.get("evolucao_vendas"):
+		html += '<div class="grafico-box grafico-box-full">' + graficos["evolucao_vendas"] + '</div>'
 	
 	html += '</div></div>'
 	

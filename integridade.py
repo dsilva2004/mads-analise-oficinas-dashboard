@@ -1,5 +1,5 @@
+import re
 from datetime import date, datetime
-
 
 def relatorio_html(tabelas):
     # Recebe um dicionário {nome_tabela: dados} e retorna um relatório HTML de integridade dos dados.
@@ -160,6 +160,33 @@ def relatorio_html(tabelas):
 				lon = to_float(row[idx_lon])
 				if lon is None or lon < -180 or lon > 180:
 					record_error("oficinas", i, header[idx_lon], "Longitude inválida", row[idx_lon])
+
+			# Coordenadas fora da cidade da Maia (bounding box aproximada)
+			# Bounding box derivado de: centro 41.2357, -8.6199 | área 82.99 km²
+			# Norte: ~41.316 (Castêlo da Maia) | Sul: ~41.176 (Pedrouços)
+			# Oeste: ~-8.695 (Gemunde)        | Este: ~-8.561 (Milheirós)
+			# Fonte: OSM relation/3384812, Wikipedia freguesias da Maia
+			if idx_lat is not None and idx_lon is not None and idx_lat < len(row) and idx_lon < len(row):
+				lat = to_float(row[idx_lat])
+				lon = to_float(row[idx_lon])
+				if lat is not None and lon is not None:
+					if not (41.18 <= lat <= 41.32 and -8.68 <= lon <= -8.54):
+						record_error("oficinas", i, "Latitude/Longitude", "- Coordenadas fora da cidade da Maia", f"{row[idx_lat]}, {row[idx_lon]}")
+
+		# Valida formato de horário: espera HH:MM-HH:MM (ex: 09:00-18:00)
+		# Declarado fora do loop de linhas — o índice é fixo para toda a tabela
+		idx_horario = find_column_index(header, "horario", "horário", "horarios", "horários", "schedule")
+		if idx_horario is not None:
+			# Regex: dois dígitos, ':', dois dígitos, '-', dois dígitos, ':', dois dígitos
+			horario_re = re.compile(r"^\d{2}:\d{2}-\d{2}:\d{2}$")
+			for i, row in enumerate(oficinas[1:], start=2):
+				if idx_horario < len(row):
+					horario = str(row[idx_horario]).strip()
+					# Só valida se a célula não estiver vazia
+					if horario and not horario_re.match(horario):
+						record_error("oficinas", i, header[idx_horario], "Horário mal formatado (esperado HH:MM-HH:MM)", row[idx_horario])
+			
+			
 
 	# === Validação: utilizadores ===
 	def validate_utilizadores_table(utilizadores):
