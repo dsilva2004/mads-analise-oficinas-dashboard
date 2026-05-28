@@ -205,16 +205,17 @@ def dashboard_data(dados):
 def dashboard_html(dados):
 	graficos = dashboard_data(dados)
 	if not isinstance(graficos, dict) or not graficos:
-		return "<p>Sem dados</p>"
+		return '<div class="no-data">Sem dados disponíveis</div>'
 	
-	# CSS para layout responsivo
+	# CSS para layout responsivo moderno
 	css = """
 	<style>
-		.dashboard-container { max-width: 1400px; margin: 0 auto; padding: 20px; }
-		.dashboard-title { text-align: center; margin-bottom: 30px; }
+		.dashboard-container { max-width: 1400px; margin: 0 auto; }
 		.graficos-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; margin-bottom: 20px; }
-		.grafico-box { background: #f9f9f9; padding: 15px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); min-width: 0; }
+		.grafico-box { background: white; padding: 0; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); overflow: hidden; }
 		.grafico-box-full { grid-column: 1 / -1; }
+		.grafico-title { font-size: 14px; font-weight: 600; color: #2c3e50; padding: 16px 16px 0 16px; text-transform: uppercase; letter-spacing: 0.3px; }
+		.grafico-content { padding: 16px; }
 		.grafico-box > div { width: 100% !important; }
 		.grafico-box .plotly-graph-div { width: 100% !important; }
 		#grafico_tempo, #grafico_evolucao_vendas { width: 100% !important; }
@@ -230,24 +231,24 @@ def dashboard_html(dados):
 	html += '<div class="dashboard-container">'
 	html += '<div class="graficos-grid">'
 	
-	# Adiciona cada gráfico numa box (tempo primeiro, ocupando 2 colunas)
+	# Gráficos em ordem otimizada
 	if graficos.get("tempo"):
-		html += '<div class="grafico-box grafico-box-full">' + graficos["tempo"] + '</div>'
+		html += '<div class="grafico-box grafico-box-full"><div class="grafico-title">Volume de Faturação ao Longo do Tempo</div><div class="grafico-content">' + graficos["tempo"] + '</div></div>'
 	
 	if graficos.get("total"):
-		html += '<div class="grafico-box">' + graficos["total"] + '</div>'
-	
-	if graficos.get("tipo"):
-		html += '<div class="grafico-box">' + graficos["tipo"] + '</div>'
-	
-	if graficos.get("vendas_categoria"):
-		html += '<div class="grafico-box">' + graficos["vendas_categoria"] + '</div>'
+		html += '<div class="grafico-box"><div class="grafico-title">Quantidade de Compras por Oficina</div><div class="grafico-content">' + graficos["total"] + '</div></div>'
 	
 	if graficos.get("oficinas"):
-		html += '<div class="grafico-box">' + graficos["oficinas"] + '</div>'
+		html += '<div class="grafico-box"><div class="grafico-title">Volume de Vendas por Oficina</div><div class="grafico-content">' + graficos["oficinas"] + '</div></div>'
+	
+	if graficos.get("vendas_categoria"):
+		html += '<div class="grafico-box"><div class="grafico-title">Vendas por Categoria</div><div class="grafico-content">' + graficos["vendas_categoria"] + '</div></div>'
+	
+	if graficos.get("tipo"):
+		html += '<div class="grafico-box"><div class="grafico-title">Distribuição de Vendas por Tipo</div><div class="grafico-content">' + graficos["tipo"] + '</div></div>'
 	
 	if graficos.get("evolucao_vendas"):
-		html += '<div class="grafico-box grafico-box-full">' + graficos["evolucao_vendas"] + '</div>'
+		html += '<div class="grafico-box grafico-box-full"><div class="grafico-title">Evolução de Vendas por Categoria ao Longo do Tempo</div><div class="grafico-content">' + graficos["evolucao_vendas"] + '</div></div>'
 	
 	html += '</div></div>'
 	

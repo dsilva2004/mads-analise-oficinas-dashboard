@@ -306,13 +306,14 @@ def relatorio_html(tabelas):
 
 	#  Construir HTML: resumo por tabela 
 	table_names = sorted(tables.keys())
-	html = "<h4>Relatório de Integridade dos Dados</h4>"
+	html = '<div style="margin-bottom: 24px;"><h4 style="font-size: 16px; font-weight: 600; color: #2c3e50; margin-bottom: 12px;">Relatório de Integridade dos Dados</h4>'
 	items = []
 	for n in (table_names or []):
 		state = "erro" if any(e.get("Tabela") == n for e in errors) else "ok"
-		color = "red" if state == "erro" else "green"
-		items.append(f"<span style='color: {color}; font-weight: bold;'>{n}: {state}</span>")
-	html += " | ".join(items)
+		color = "#c0392b" if state == "erro" else "#27ae60"
+		icon = "●" if state == "erro" else "✓"
+		items.append(f"<span style='color: {color}; font-weight: 500; margin-right: 16px;'>{icon} {n}: {state}</span>")
+	html += "<div style='display: flex; flex-wrap: wrap;'>" + "".join(items) + "</div></div>"
 
 	# Se não há erros, retorna apenas o resumo
 	if not errors:
@@ -320,9 +321,15 @@ def relatorio_html(tabelas):
 
 	#  Construir HTML: detalhes de erros 
 	heads = ["Tabela", "Linha", "Coluna", "Erro"]
-	html += "<br/><h3>Erros encontrados</h3>"
-	html += "<table border='1' cellpadding='6' cellspacing='0'><tr>" + "".join(f"<th>{h}</th>" for h in heads) + "</tr>"
+	html += '<div style="background: white; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); overflow: hidden;"><div style="background-color: #f5f7fa; padding: 16px; border-bottom: 1px solid #e1e8ed;"><h3 style="font-size: 16px; font-weight: 600; color: #2c3e50; margin: 0;">Erros encontrados</h3></div>'
+	html += '<table style="width: 100%; border-collapse: collapse;"><thead><tr>'
+	for h in heads:
+		html += f'<th style="background-color: #f5f7fa; color: #2c3e50; font-weight: 600; font-size: 13px; text-align: left; padding: 14px 16px; border-bottom: 2px solid #e1e8ed; text-transform: uppercase; letter-spacing: 0.3px;">{h}</th>'
+	html += '</tr></thead><tbody>'
 	for e in errors:
-		html += "<tr>" + "".join(f"<td>{e.get(h, '')}</td>" for h in heads) + "</tr>"
-	html += "</table>"
+		html += '<tr style="border-bottom: 1px solid #f0f0f0;">'
+		for h in heads:
+			html += f'<td style="padding: 12px 16px; font-size: 13px; color: #444;">{e.get(h, "")}</td>'
+		html += '</tr>'
+	html += '</tbody></table></div>'
 	return html

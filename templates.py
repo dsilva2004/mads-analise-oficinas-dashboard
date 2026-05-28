@@ -24,7 +24,11 @@ def format_created_em(value):
         return text.split()[0]
 
 
-def format_cell(value):
+def normalize_header(value):
+    return str(value).strip().lower()
+
+
+def format_coordinate(value):
     text = str(value).strip()
     if not text:
         return text
@@ -35,28 +39,42 @@ def format_cell(value):
     except Exception:
         return value
 
+
+def format_cell(value):
+    return value
+
 def render_table(dados):
     if not dados:
-        return "<p>Sem dados</p>"
-    html = "<table border='1' cellpadding='2' cellspacing='0'><tr>"
+        return '<div class="no-data">Sem dados</div>'
+    html = '<div class="table-wrapper"><table><thead><tr>'
     for h in dados[0]:
         html += f"<th>{h}</th>"
-    html += "</tr>"
+    html += "</tr></thead><tbody>"
     criado_em_idx = next((i for i, h in enumerate(dados[0]) if str(h).strip().lower() == "criadoem"), None)
+    coord_columns = {
+        i
+        for i, h in enumerate(dados[0])
+        if normalize_header(h) in {"latitude", "lat", "longitude", "lon"}
+    }
     for row in dados[1:]:
         cells = []
         for i, cell in enumerate(row):
             if criado_em_idx is not None and i == criado_em_idx:
                 cell = format_created_em(cell)
+            elif i in coord_columns:
+                cell = format_coordinate(cell)
             else:
                 cell = format_cell(cell)
             cells.append(f"<td>{cell}</td>")
         html += "<tr>" + "".join(cells) + "</tr>"
-    html += "</table>"
+    html += "</tbody></table></div>"
     return html
 
 def oficinas(dados, categorias=None):
-    return render_table(dados) + "<p> </p>" + mapa.mapa(dados, categorias)
+    tabela_html = render_table(dados)
+    mapa_html = mapa.mapa(dados, categorias)
+    mapa_section = f'<div class="map-section"><div class="map-title">Localização Geográfica das Oficinas</div><div class="map-container">{mapa_html}</div></div>'
+    return tabela_html + mapa_section
 
 def utilizadores(dados):
     return render_table(dados)

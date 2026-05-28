@@ -71,7 +71,7 @@ def legend_marker_html(cor):
 def mapa(dados, categorias=None, height=550):
     # Validação mínima dos dados de oficinas.
     if not dados or len(dados) < 2:
-        return "<p>Sem dados de oficinas para mostrar no mapa.</p>"
+        return '<div class="no-data">Sem dados de oficinas disponíveis para exibição no mapa.</div>'
 
     # Identificar colunas relevantes da tabela de oficinas.
     headers = dados[0]
@@ -82,7 +82,7 @@ def mapa(dados, categorias=None, height=550):
     i_lon = findeIndex(headers, "Longitude", "longitude", "Lon")
     i_lat = findeIndex(headers, "Latitude", "latitude", "Lat")
     if i_lon is None or i_lat is None:
-        return "<p>Os dados das oficinas não têm longitude/latitude.</p>"
+        return '<div class="no-data">Dados de localização geográfica indisponíveis.</div>'
 
     # Extrair e validar pontos geográficos.
     pontos = []
@@ -98,7 +98,7 @@ def mapa(dados, categorias=None, height=550):
         pontos.append((nome, morada, categoria, horario, lat, lon))
 
     if not pontos:
-        return "<p>Não foi possível gerar o mapa com os dados atuais.</p>"
+        return '<div class="no-data">Não há pontos válidos para exibição no mapa.</div>'
 
     # Centro médio dos pontos para inicializar o mapa.
     centro = [mean(p[4] for p in pontos), mean(p[5] for p in pontos)]
@@ -111,10 +111,13 @@ def mapa(dados, categorias=None, height=550):
     for nome, morada, categoria, horario, lat, lon in pontos:
         cor = color(categoria, cat_map)
         popup_html = (
-            f"<b>{html.escape(str(nome))}</b><br>"
-            f"Morada: {html.escape(str(morada or '—'))}<br>"
-            f"Categoria: {html.escape(str(categoria or '—'))}<br>"
-            f"Horário: {html.escape(str(horario or '—'))}"
+            f"<div style='font-family: sans-serif; width: 280px;'>"
+            f"<b style='font-size: 14px; color: #2c3e50;'>{html.escape(str(nome))}</b><br>"
+            f"<div style='margin-top: 8px; font-size: 12px; color: #444;'>"
+            f"<div><strong>Morada:</strong> {html.escape(str(morada or '—'))}</div>"
+            f"<div><strong>Categoria:</strong> {html.escape(str(categoria or '—'))}</div>"
+            f"<div><strong>Horário:</strong> {html.escape(str(horario or '—'))}</div>"
+            f"</div></div>"
         )
         if isinstance(cor, str) and cor.startswith("#"):
             folium.CircleMarker([lat, lon], radius=6, color=cor, fill=True, fillcolor=cor, popup=folium.Popup(popup_html, max_width=300), tooltip=nome).add_to(m)
@@ -123,12 +126,12 @@ def mapa(dados, categorias=None, height=550):
 
     # Gerar legenda de categorias no canto superior esquerdo.
     legenda_html = """
-<div style="position: fixed; top: 10vh; left: 1vh; width: 180px; z-index:9999; font-size:14px; background-color:white; border:2px solid grey; padding: 10px;">
-  <b>Legenda de Categorias</b><br>
+<div style="position: fixed; top: 10vh; left: 1vh; width: 200px; z-index:9999; font-size:12px; background-color:white; border:1px solid #ddd; border-radius: 4px; padding: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); font-family: sans-serif;">
+  <div style="font-weight: 600; color: #2c3e50; font-size: 13px; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.3px;">Legenda de Categorias</div>
 """
     if cat_map:
         for nome, cor in cat_map.items():
-            legenda_html += f"{legend_marker_html(cor)} {html.escape(nome.capitalize())}<br>"
+            legenda_html += f"<div style='margin-bottom: 6px;'>{legend_marker_html(cor)} <span style='vertical-align: middle; color: #444;'>{html.escape(nome.capitalize())}</span></div>"
     else:
         seen = set()
         for _, categoria, _, _ in pontos:
@@ -137,7 +140,7 @@ def mapa(dados, categorias=None, height=550):
                 continue
             seen.add(k)
             cor = color(categoria)
-            legenda_html += f"{legend_marker_html(cor)} {html.escape(str(categoria).capitalize())}<br>"
+            legenda_html += f"<div style='margin-bottom: 6px;'>{legend_marker_html(cor)} <span style='vertical-align: middle; color: #444;'>{html.escape(str(categoria).capitalize())}</span></div>"
     legenda_html += "</div>"
     m.get_root().html.add_child(Element(legenda_html))
 
