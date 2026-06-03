@@ -39,23 +39,22 @@ def format_coordinate(value):
     except Exception:
         return value
 
-
-def format_cell(value):
-    return value
-
 def render_table(dados):
     if not dados:
         return '<div class="no-data">Sem dados</div>'
-    html = '<div class="table-wrapper"><table><thead><tr>'
+
+    parts = ['<div class="table-wrapper"><table><thead><tr>']
     for h in dados[0]:
-        html += f"<th>{h}</th>"
-    html += "</tr></thead><tbody>"
+        parts.append(f"<th>{h}</th>")
+    parts.append("</tr></thead><tbody>")
+
     criado_em_idx = next((i for i, h in enumerate(dados[0]) if str(h).strip().lower() == "criadoem"), None)
     coord_columns = {
         i
         for i, h in enumerate(dados[0])
         if normalize_header(h) in {"latitude", "lat", "longitude", "lon"}
     }
+
     for row in dados[1:]:
         cells = []
         for i, cell in enumerate(row):
@@ -64,11 +63,12 @@ def render_table(dados):
             elif i in coord_columns:
                 cell = format_coordinate(cell)
             else:
-                cell = format_cell(cell)
+                cell = cell
             cells.append(f"<td>{cell}</td>")
-        html += "<tr>" + "".join(cells) + "</tr>"
-    html += "</tbody></table></div>"
-    return html
+        parts.append("<tr>" + "".join(cells) + "</tr>")
+
+    parts.append("</tbody></table></div>")
+    return "".join(parts)
 
 def oficinas(dados, categorias=None):
     tabela_html = render_table(dados)

@@ -95,7 +95,7 @@ def grafico_total(df, mapa_oficinas):
 	nomes = [mapa_oficinas.get(nif, nif) for nif in compras.index]
 	
 	fig = go.Figure(data=[go.Bar(y=nomes, x=compras.values, orientation='h', marker_color='steelblue')])
-	fig.update_layout(title="Quantidade de Compras por Oficina", xaxis_title="Número de Compras", height=600, showlegend=False)
+	fig.update_layout(xaxis_title="Número de Compras", height=600, showlegend=False)
 	
 	return fig.to_html(include_plotlyjs='cdn', div_id="grafico_total")
 
@@ -108,7 +108,7 @@ def grafico_oficinas(df, mapa_oficinas):
 	nomes = [mapa_oficinas.get(nif, nif) for nif in vendas.index]
 	
 	fig = go.Figure(data=[go.Bar(y=nomes, x=vendas.values, orientation='h', marker_color='coral')])
-	fig.update_layout(title="Volume de Vendas por Oficina", xaxis_title="Valor (€)", height=600, showlegend=False)
+	fig.update_layout(xaxis_title="Valor (€)", height=600, showlegend=False)
 	
 	return fig.to_html(include_plotlyjs='cdn', div_id="grafico_oficinas")
 
@@ -121,7 +121,7 @@ def grafico_tipo(df):
 	nomes = ["Produto" if x == "P" else "Serviço" if x == "S" else x for x in vendas.index]
 	
 	fig = go.Figure(data=[go.Pie(labels=nomes, values=vendas.values, textposition='inside', textinfo='label+percent')])
-	fig.update_layout(title="Vendas por Tipo", height=600)
+	fig.update_layout(height=600)
 	
 	return fig.to_html(include_plotlyjs='cdn', div_id="grafico_tipo")
 
@@ -137,7 +137,7 @@ def grafico_tempo(df):
 	vendas = df_valid.groupby("data")["valor"].sum().sort_index()
 	
 	fig = go.Figure(data=[go.Scatter(x=vendas.index, y=vendas.values, mode='lines+markers', fill='tozeroy', line=dict(color='green', width=2))])
-	fig.update_layout(title="Volume de faturação ao Longo do Tempo", xaxis_title="Data", yaxis_title="Valor (€)", height=600, margin=dict(l=0, r=0, t=40, b=0), autosize=True)
+	fig.update_layout(xaxis_title="Data", yaxis_title="Valor (€)", height=600, margin=dict(l=0, r=0, t=40, b=0), autosize=True)
 	
 	return fig.to_html(include_plotlyjs='cdn', div_id="grafico_tempo", config={'responsive': True})
 
@@ -162,7 +162,7 @@ def grafico_evolucao_vendas(df):
 		
 		fig.add_trace(go.Scatter(x=dados_tipo["data"], y=dados_tipo["valor"], mode='lines+markers', name=nome_tipo, fill='tozeroy'))
 	
-	fig.update_layout(title="Evolução de Vendas por Categoria", xaxis_title="Data", yaxis_title="Valor (€)", height=600, hovermode='x unified', margin=dict(l=0, r=0, t=40, b=0), autosize=True)
+	fig.update_layout(xaxis_title="Data", yaxis_title="Valor (€)", height=600, hovermode='x unified', margin=dict(l=0, r=0, t=40, b=0), autosize=True)
 	
 	return fig.to_html(include_plotlyjs='cdn', div_id="grafico_evolucao_vendas", config={'responsive': True})
 
@@ -180,7 +180,7 @@ def grafico_vendas_categoria(df):
     cores = [mapa_cores.get(x, cor_default) for x in vendas.index]
     
     fig = go.Figure(data=[go.Bar(x=nomes, y=vendas.values, marker_color=cores)])
-    fig.update_layout(title="Vendas por Categoria", xaxis_title="Categoria", yaxis_title="Valor (€)", height=600, showlegend=False)
+    fig.update_layout(xaxis_title="Categoria", yaxis_title="Valor (€)", height=600, showlegend=False)
     
     return fig.to_html(include_plotlyjs='cdn', div_id="grafico_vendas_categoria")
 
@@ -253,4 +253,3 @@ def dashboard_html(dados):
 	html += '</div></div>'
 	
 	return html
-

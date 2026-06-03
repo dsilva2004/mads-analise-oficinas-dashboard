@@ -32,8 +32,12 @@ with open(chaves_file_path) as f:
 
 # Função para buscar os dados de uma worksheet pelo nome da tabela
 def get_data(nome):
-    return sheet.worksheet_by_title(nome).get_all_values(include_tailing_empty=False)
-
+    ws = sheet.worksheet_by_title(nome)
+    return ws.get_all_values(
+        include_tailing_empty=False,
+        include_tailing_empty_rows=False,
+        returnas="matrix",
+    )
 
 def get_data_safe(nome):
     try:
